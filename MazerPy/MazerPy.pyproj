@@ -21,6 +21,12 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="cell.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="maze.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MazerPy.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
