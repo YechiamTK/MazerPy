@@ -1,6 +1,6 @@
 import cell
 import random
-import math
+from itertools import chain
 
 class maze(object):
     """represents all features of a maze"""
@@ -12,52 +12,62 @@ class maze(object):
                 self.cells[x][y] = cell.cell(x,y)
 
     def isThereUnvisited(self):
-        for cel in self.cells:
-            if(cel.isVisited() == False):
-                return True
+        for row in self.cells:
+            for cel in row:
+                if(cel.isVisited() == False):
+                    return True
     
     def checkNeighbors(self, x, y):
-        size = math.sqrt(self.cells.__len__())
+        size = self.cells.__len__()
         neighbors = []
-        #NEED REPAIR!
         if x>0:
-            if self.cells[(x-1)*int(size)+y].isVisited()==False:
-                neighbors.append(self.cells[(x-1)*int(size)+y])
+            if self.cells[(x-1)][y].isVisited()==False:
+                neighbors.append(self.cells[(x-1)][y])
         if x<size-1:
-            if self.cells[(x+1)*int(size)+y].isVisited()==False:
-                neighbors.append(self.cells[(x+1)*int(size)+y])
+            if self.cells[(x+1)][y].isVisited()==False:
+                neighbors.append(self.cells[(x+1)][y])
         if y>0:
-            if self.cells[x*int(size)+y-1].isVisited()==False:
-                neighbors.append(self.cells[x*int(size)+y-1])
+            if self.cells[x][(y-1)].isVisited()==False:
+                neighbors.append(self.cells[x][(y-1)])
         if y<size-1:
-            if self.cells[x*int(size)+y+1].isVisited()==False:
-                neighbors.append(self.cells[x*int(size)+y+1])
+            if self.cells[x][(y+1)].isVisited()==False:
+                neighbors.append(self.cells[x][(y+1)])
+
         rnd = -1
         if (neighbors.__len__()>0):
             rnd = random.randrange(neighbors.__len__())
-            return (self.cells[rnd].getX()*int(size)+self.cells[rnd].getY())    #NEED REPAIR!
+            return (neighbors[rnd])    #0=rows=x; 1=cols=y
         return rnd
 
     def create(self):
-        cellsIt = iter(self.cells)
+        print ("Creating the maze...\n")
+        listIt = list(chain.from_iterable(zip(*self.cells)))
+        cellsIt = iter(listIt)
         curr = next(cellsIt)
         curr.visit()
         cellStack = []
         nextNeighbor = 0
         wall = 0
+        x=1
         while (self.isThereUnvisited()):
+            print (x, "iteration")
             nextNeighbor = self.checkNeighbors(curr.getX(), curr.getY())
             if nextNeighbor != -1:
-                nextCell = self.cells[nextNeighbor]
+                print ("neighbor exists!")
+                nextCell = nextNeighbor
                 cellStack.append(curr)
                 if (curr.getX()-nextCell.getX()) == 1:
-                    wall = 0
+                    wall = 0                    #up wall
+                    print ("took down a wall!")
                 elif (curr.getX()-nextCell.getX()) == -11:
-                    wall = 2
+                    wall = 2                    #down wall
+                    print ("took down a wall!")
                 elif (curr.getY()-nextCell.getY()) == 1:
-                    wall = 1
+                    wall = 1                    #right wall
+                    print ("took down a wall!")
                 elif (curr.getY()-nextCell.getY()) == -1:
-                    wall = 3 #not 4
+                    wall = 3 #not 4             #left wall
+                    print ("took down a wall!")
                 curr.removeWalls(wall, nextCell)
 
                 curr = next(cellsIt)
@@ -65,14 +75,18 @@ class maze(object):
 
             elif cellStack.__len__()>0:
                 curr = cellStack.pop()
+            x+=1
 
+        print ("Finished creating the maze!\n")
 
     def printMaze(self):
         #needs to be GUI (PyQt) and reflect cells' walls
         #but just for testing purposes: printing data
         #MOVED TO THE MAIN .PY
-        for cel in self.cells:
-            print (cel.getX(), " ", cel.getY(), " ", cel.getWalls())
+        print ("Printing...\n")
+        for row in self.cells:
+            for cel in row:
+                print (cel.getX(), " ", cel.getY(), " ", cel.getWalls())
         
 
     def size(self):
