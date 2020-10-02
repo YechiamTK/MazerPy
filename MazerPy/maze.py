@@ -1,96 +1,114 @@
 import cell
 import random
-from itertools import chain
 
 class maze(object):
     """represents all features of a maze"""
 
+    
     def __init__(self, size):
+        """initiate the maze with a 2d array of cells (list)"""
+
         self.cells = [[0] * size for i in range(size)]
         for x in range (0, size):
             for y in range (0, size):
                 self.cells[x][y] = cell.cell(x,y)
 
-    def isThereUnvisited(self):
+    
+    def isThereUnvisitedCells(self):
+        """check the cells array for unvisited cells"""
+
         for row in self.cells:
             for cel in row:
                 if(cel.isVisited() == False):
                     return True
     
-    def checkNeighbors(self, x, y):
-        size = self.cells.__len__()
+    
+    def checkForNextNeighbor(self, x, y):
+        """check if there are any unvisited cells adjacent to the current cell
+return randomly one the these cells for the DFS algorithm, or -1 if there are no cells"""
+
+        size = len(self.cells)
         neighbors = []
-        if x>0:
-            if self.cells[(x-1)][y].isVisited()==False:
+        #left cell
+        if x>0 and self.cells[(x-1)][y].isVisited()==False:
                 neighbors.append(self.cells[(x-1)][y])
-        if x<size-1:
-            if self.cells[(x+1)][y].isVisited()==False:
+        #right cell
+        if x<size-1 and self.cells[(x+1)][y].isVisited()==False:
                 neighbors.append(self.cells[(x+1)][y])
-        if y>0:
-            if self.cells[x][(y-1)].isVisited()==False:
+        #up cell
+        if y>0 and self.cells[x][(y-1)].isVisited()==False:
                 neighbors.append(self.cells[x][(y-1)])
-        if y<size-1:
-            if self.cells[x][(y+1)].isVisited()==False:
+        #down cell
+        if y<size-1 and self.cells[x][(y+1)].isVisited()==False:
                 neighbors.append(self.cells[x][(y+1)])
 
+        #randomly choose one of the cells
         rnd = -1
-        if (neighbors.__len__()>0):
-            rnd = random.randrange(neighbors.__len__())
-            return (neighbors[rnd])    #0=rows=x; 1=cols=y
+        if (len(neighbors)>0):
+            rnd = random.randrange(len(neighbors))
+            return (neighbors[rnd])    
         return rnd
 
+
     def create(self):
-        print ("Creating the maze...\n")
-        listIt = list(chain.from_iterable(zip(*self.cells)))
-        cellsIt = iter(listIt)
-        curr = next(cellsIt)
+        """main function for creating the maze:
+use DFS to run through all the cells (randomly)
+break walls between 2 unvisited cells to create the maze pattern"""
+
+        print ("Creating the maze...\n")        #debugging usage
+        #start from [0][0] and continue from there
+        curr = self.cells[0][0]
         curr.visit()
+        #cellStack: save the run-down cells until reaching 
+        #visited cell; then pop the previous one from the cell 
         cellStack = []
         nextNeighbor = 0
         wall = 0
-        x=1
-        while (self.isThereUnvisited()):
-            print (x, "iteration")
-            nextNeighbor = self.checkNeighbors(curr.getX(), curr.getY())
-            if nextNeighbor != -1:
-                print ("neighbor exists!")
-                nextCell = nextNeighbor
+        while (self.isThereUnvisitedCells()):
+            #check for the unvisited neighbors and take randomly one of them
+            nextNeighbor = self.checkForNextNeighbor(curr.getX(), curr.getY())
+            if nextNeighbor != -1:  #if there is an unvisited neighbor
                 cellStack.append(curr)
-                if (curr.getX()-nextCell.getX()) == 1:
+                #check for the relation between the cells (which direction)
+                if (curr.getX()-nextNeighbor.getX()) == 1:
                     wall = 0                    #up wall
-                    print ("took down a wall!")
-                elif (curr.getX()-nextCell.getX()) == -11:
-                    wall = 2                    #down wall
-                    print ("took down a wall!")
-                elif (curr.getY()-nextCell.getY()) == 1:
-                    wall = 1                    #right wall
-                    print ("took down a wall!")
-                elif (curr.getY()-nextCell.getY()) == -1:
-                    wall = 3 #not 4             #left wall
-                    print ("took down a wall!")
-                curr.removeWalls(wall, nextCell)
+                elif (curr.getX()-nextNeighbor.getX()) == -1:
+                    wall = 3                    #down wall
+                elif (curr.getY()-nextNeighbor.getY()) == 1:
+                    wall = 1                    #left wall
+                elif (curr.getY()-nextNeighbor.getY()) == -1:
+                    wall = 2                    #right wall
+                #break the walls between them
+                curr.removeWalls(wall, nextNeighbor)
 
-                curr = next(cellsIt)
+                #move on to the next neighbor and continue the DFS scheme
+                curr = nextNeighbor
                 curr.visit()
 
-            elif cellStack.__len__()>0:
+            #if return to the previous cell if there aren't any neighbors
+            elif len(cellStack)>0:      
                 curr = cellStack.pop()
-            x+=1
 
+        #debugging usage
         print ("Finished creating the maze!\n")
 
+    
     def printMaze(self):
-        #needs to be GUI (PyQt) and reflect cells' walls
-        #but just for testing purposes: printing data
-        #MOVED TO THE MAIN .PY
+        """debugging usage"""
+
         print ("Printing...\n")
         for row in self.cells:
             for cel in row:
                 print (cel.getX(), " ", cel.getY(), " ", cel.getWalls())
         
-
+    
     def size(self):
-        return self.cells.__len__()
+        """return the size of the maze by the count of the cells"""
 
+        return len(self.cells)
+
+    
     def getCells(self):
+        """return the cells array"""
+
         return self.cells
