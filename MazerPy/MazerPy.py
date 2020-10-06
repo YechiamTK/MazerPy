@@ -42,6 +42,8 @@ class Window(QMainWindow):
         painter = QPainter(self)
         painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing)
+
+        #maze drawing:
         painter.setPen(Qt.red)
         painter.setBrush(Qt.white)
 
@@ -75,6 +77,25 @@ class Window(QMainWindow):
             #StopIteration means we've reached the end of the cells array
             except StopIteration:
                 break
+            
+        #solution drawing:
+        painter.setPen(Qt.transparent)
+        painter.setBrush(Qt.black)
+        solution = []
+        #solve solution using BFS
+        solution = self.maze.solve()
+        #creates an iterator to iterate over the solution array
+        cellIt = iter(solution)
+
+        #draw rects for each cell in the solution list
+        while True:
+           try:
+               curr = next(cellIt)
+               painter.drawRect(curr.getX()*50+50,curr.getY()*50+50,50,50)
+           #StopIteration means we've reached the end of the cells array
+           except StopIteration:
+               break
+        
 
 
 #main function for the program
@@ -84,6 +105,7 @@ def main():
     #creating the maze: maze(x) such as x**2 is the whole maze
     myMaze = maze.maze(15)
     myMaze.create()
+    myMaze.solve()
     #myMaze.printMaze()  #debugging usage
     #creating the PyQt app
     App = QApplication(sys.argv)

@@ -13,6 +13,8 @@ visited: represents if the cell has been visited"""
         #0=up,1=left,2=right,3=down
         self.walls = [True] * 4
         self.visited = False
+        #contains the parent in the BFS view; used for solutions
+        self.parent = 0
    
     
     def getX(self):
@@ -44,7 +46,26 @@ visited: represents if the cell has been visited"""
 
         self.visited = True
 
+
+    def unvisit(self):
+        """"unvisit" the cell"""
     
+        self.visited = False
+
+
+    def getParent(self):
+        """returns the parent of the cell"""
+
+        return self.parent
+
+
+    def setParent(self, parent):
+        """sets the parent for the cell, used for solution.
+expects parent=cell"""
+
+        self.parent = parent
+
+
     def removeWall(self, wall): #wall=int between 0-3
         """removes a certain wall from the cell"""
 
